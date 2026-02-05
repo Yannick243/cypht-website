@@ -1728,9 +1728,58 @@ exclude: true
         # delete an account
         php ./scripts/delete_account.php username
 
-        # change an account password
-        php ./scripts/update_password.php username password
+        # Change an account password with old password (preserves user data):
+        php ./scripts/update_password.php username old_password new_password
+
+        # Change an account password without old password (may lose user data):
+        php ./scripts/update_password.php username new_password
     </pre>
+
+    <h5>Important note: Password Special Characters</h5>
+
+    <p><b>Always quote passwords containing special characters</b> to prevent shell misinterpretation.</p>
+
+    <p>Shell special characters that require quoting:</p>
+    <pre><code>
+    - & - Background operator
+    - ; - Command separator  
+    - | - Pipe operator
+    - > < - Redirection operators
+    - $ - Variable expansion
+    - `command` - Command substitution
+    - * ? - Wildcards
+    - ! - History expansion
+    - # - Comment marker
+    - \ - Escape character
+    - ( ) - Subshell
+    - { } - Brace expansion
+    - [ ] - Pattern matching
+    - ~ - Home directory expansion
+    - ' " - Quote characters
+    - Spaces and tabs
+    </code></pre>
+
+    <h5>Avoid Shell History Exposure</h5>
+
+    <p>Passwords entered on the command line are saved to your shell history file in plain text. Anyone with access to your account can view them. Use these methods to prevent this:</p>
+
+    <h6>Method A: Prefix command with a space (Bash/Zsh)</h6>
+    <pre><code># First, enable this feature (add to ~/.bashrc or ~/.zshrc):
+    export HISTCONTROL=ignorespace  # For Bash
+    # or
+    setopt HIST_IGNORE_SPACE        # For Zsh
+
+    # Then prefix your command with a space (notice the space before 'php'):
+     php ./scripts/create_account.php username 'password123'</code></pre>
+
+    <h6>Method B: Remove command from history immediately after</h6>
+    <pre><code># Run your command
+    php ./scripts/create_account.php username 'password123'
+
+    # Then immediately delete it from history
+    history -d $((HISTCMD-1))  # Bash
+    # or
+    history -d -1              # Zsh</code></pre>
 
     <h4>7. Debug mode</h4>
     <p>Cypht has a debug or developer mode that can be used to troubleshoot problems or enable faster development of modules. To enable the debug version of Cypht, just sym-link the entire source directory instead of the site sub-directory:</p>
